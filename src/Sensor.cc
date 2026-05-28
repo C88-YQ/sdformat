@@ -82,6 +82,12 @@ class sdf::Sensor::Implementation
   /// \brief Name of the sensor.
   public: std::string name = "";
 
+  /// \brief Namespace of the sensor.
+  public: std::string ns = "";
+
+  /// \brief True when namespace tracks the sensor name via "__name__".
+  public: bool nsFromName = false;
+
   /// \brief Sensor frame ID
   public: std::string frameId{""};
 
@@ -246,6 +252,23 @@ Errors Sensor::Load(ElementPtr _sdf)
                      "The supplied sensor name [" + this->dataPtr->name +
                      "] is reserved."});
   }
+
+  // Read the sensor's namespace
+  if (_sdf->HasAttribute("namespace"))
+  {
+    auto ns = _sdf->Get<std::string>("namespace", "").first;
+    if (ns == "__name__")
+    {
+      this->dataPtr->nsFromName = true;
+      ns = this->dataPtr->name;
+    }
+    else
+    {
+      this->dataPtr->nsFromName = false;
+    }
+    this->dataPtr->ns = ns;
+  }
+
   this->dataPtr->frameId = _sdf->Get<std::string>("frame_id",
       this->dataPtr->frameId).first;
   this->dataPtr->updateRate = _sdf->Get<double>("update_rate",
@@ -441,6 +464,31 @@ std::string Sensor::Name() const
 void Sensor::SetName(const std::string &_name)
 {
   this->dataPtr->name = _name;
+  if (this->dataPtr->nsFromName)
+  {
+    this->dataPtr->ns = _name;
+  }
+}
+
+/////////////////////////////////////////////////
+std::string Sensor::Namespace() const
+{
+  return this->dataPtr->ns;
+}
+
+/////////////////////////////////////////////////
+void Sensor::SetNamespace(const std::string &_ns)
+{
+  if (_ns == "__name__")
+  {
+    this->dataPtr->nsFromName = true;
+    this->dataPtr->ns = this->dataPtr->name;
+  }
+  else
+  {
+    this->dataPtr->nsFromName = false;
+    this->dataPtr->ns = _ns;
+  }
 }
 
 /////////////////////////////////////////////////
@@ -758,6 +806,14 @@ sdf::ElementPtr Sensor::ToElement(sdf::Errors &_errors) const
 
   elem->GetAttribute("type")->Set<std::string>(this->TypeStr(), _errors);
   elem->GetAttribute("name")->Set<std::string>(this->Name(), _errors);
+  if (this->dataPtr->nsFromName)
+  {
+    elem->GetAttribute("namespace")->Set("__name__");
+  }
+  else
+  {
+    elem->GetAttribute("namespace")->Set(this->Namespace());
+  }
   sdf::ElementPtr poseElem = elem->GetElement("pose", _errors);
   if (!this->dataPtr->poseRelativeTo.empty())
   {

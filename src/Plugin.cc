@@ -27,6 +27,12 @@ class sdf::PluginPrivate
   /// \brief Name of the plugin
   public: std::string name = "";
 
+  /// \brief Namespace of the plugin.
+  public: std::string ns = "";
+
+  /// \brief True when namespace tracks the plugin name via "__name__".
+  public: bool nsFromName = false;
+
   /// \brief Filename of the shared library
   public: std::string filename = "";
 
@@ -113,8 +119,24 @@ Errors Plugin::Load(ElementPtr _sdf)
     return errors;
   }
 
-  // Read the models's name
+  // Read the plugin's name
   loadName(_sdf, this->dataPtr->name);
+
+  // Read the sensor's namespace
+  if (_sdf->HasAttribute("namespace"))
+  {
+    auto ns = _sdf->Get<std::string>("namespace", "").first;
+    if (ns == "__name__")
+    {
+      this->dataPtr->nsFromName = true;
+      ns = this->dataPtr->name;
+    }
+    else
+    {
+      this->dataPtr->nsFromName = false;
+    }
+    this->dataPtr->ns = ns;
+  }
 
   // Read the filename
   std::pair<std::string, bool> filenamePair =
@@ -146,6 +168,31 @@ const std::string &Plugin::Name() const
 void Plugin::SetName(const std::string &_name)
 {
   this->dataPtr->name = _name;
+  if (this->dataPtr->nsFromName)
+  {
+    this->dataPtr->ns = _name;
+  }
+}
+
+/////////////////////////////////////////////////
+std::string Plugin::Namespace() const
+{
+  return this->dataPtr->ns;
+}
+
+/////////////////////////////////////////////////
+void Plugin::SetNamespace(const std::string &_ns)
+{
+  if (_ns == "__name__")
+  {
+    this->dataPtr->nsFromName = true;
+    this->dataPtr->ns = this->dataPtr->name;
+  }
+  else
+  {
+    this->dataPtr->nsFromName = false;
+    this->dataPtr->ns = _ns;
+  }
 }
 
 /////////////////////////////////////////////////
@@ -181,6 +228,14 @@ sdf::ElementPtr Plugin::ToElement(sdf::Errors &_errors) const
   sdf::initFile("plugin.sdf", elem);
 
   elem->GetAttribute("name")->Set(this->Name(), _errors);
+  if (this->dataPtr->nsFromName)
+  {
+    elem->GetAttribute("namespace")->Set("__name__");
+  }
+  else
+  {
+    elem->GetAttribute("namespace")->Set(this->Namespace(), _errors);
+  }
   elem->GetAttribute("filename")->Set(this->Filename(), _errors);
 
   // Insert plugin content

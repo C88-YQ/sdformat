@@ -100,6 +100,15 @@ namespace sdf
     /// \param[in] _name Name of the plugin.
     public: void SetName(const std::string &_name);
 
+    /// \brief Get the namespace associated with the plugin.
+    /// \return Namespace of the plugin.
+    public: std::string Namespace() const;
+
+    /// \brief Set the namespace associated with the plugin.
+    /// \param[in] _ns Namespace of the plugin. If set to `"__name__"`, the
+    /// plugin name will be used as the namespace.
+    public: void SetNamespace(const std::string &_ns);
+
     /// \brief Get the filename of the shared library.
     /// \return Filename of the shared library associated with the plugin.
     public: const std::string &Filename() const;

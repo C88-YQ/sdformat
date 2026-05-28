@@ -160,6 +160,15 @@ namespace sdf
     /// \param[in] _name Name of the sensor.
     public: void SetName(const std::string &_name);
 
+    /// \brief Get the namespace associated with the sensor.
+    /// \return Namespace of the sensor.
+    public: std::string Namespace() const;
+
+    /// \brief Set the namespace associated with the sensor.
+    /// \param[in] _ns Namespace of the sensor. If set to `"__name__"`, the
+    /// sensor name will be used as the namespace.
+    public: void SetNamespace(const std::string &_ns);
+
     /// \brief Get the frame ID of the sensor.
     /// \return Sensor frame ID.
     public: std::string FrameId() const;
