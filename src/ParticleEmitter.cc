@@ -47,6 +47,12 @@ class sdf::ParticleEmitter::Implementation
   /// \brief Name of the particle emitter.
   public: std::string name = "";
 
+  /// \brief Namespace of the plugin.
+  public: std::string ns = "";
+
+  /// \brief True when namespace tracks the plugin name via "__name__".
+  public: bool nsFromName = false;
+
   /// \brief Type of the particle emitter.
   public: ParticleEmitterType type = ParticleEmitterType::POINT;
 
@@ -161,6 +167,22 @@ Errors ParticleEmitter::Load(ElementPtr _sdf)
         "] is reserved."});
   }
 
+  // Read the sensor's namespace
+  if (_sdf->HasAttribute("namespace"))
+  {
+    auto ns = _sdf->Get<std::string>("namespace", "").first;
+    if (ns == "__name__")
+    {
+      this->dataPtr->nsFromName = true;
+      ns = this->dataPtr->name;
+    }
+    else
+    {
+      this->dataPtr->nsFromName = false;
+    }
+    this->dataPtr->ns = ns;
+  }
+
   // Load the pose. Ignore the return value since the pose is optional.
   loadPose(_sdf, this->dataPtr->pose, this->dataPtr->poseRelativeTo);
 
@@ -236,6 +258,31 @@ std::string ParticleEmitter::Name() const
 void ParticleEmitter::SetName(const std::string &_name)
 {
   this->dataPtr->name = _name;
+  if (this->dataPtr->nsFromName)
+  {
+    this->dataPtr->ns = _name;
+  }
+}
+
+/////////////////////////////////////////////////
+std::string ParticleEmitter::Namespace() const
+{
+  return this->dataPtr->ns;
+}
+
+/////////////////////////////////////////////////
+void ParticleEmitter::SetNamespace(const std::string &_ns)
+{
+  if (_ns == "__name__")
+  {
+    this->dataPtr->nsFromName = true;
+    this->dataPtr->ns = this->dataPtr->name;
+  }
+  else
+  {
+    this->dataPtr->nsFromName = false;
+    this->dataPtr->ns = _ns;
+  }
 }
 
 /////////////////////////////////////////////////
@@ -545,6 +592,14 @@ sdf::ElementPtr ParticleEmitter::ToElement(sdf::Errors &_errors) const
   poseElem->Set<gz::math::Pose3d>(_errors, this->RawPose());
 
   elem->GetAttribute("name")->Set(this->Name(), _errors);
+  if (this->dataPtr->nsFromName)
+  {
+    elem->GetAttribute("namespace")->Set("__name__");
+  }
+  else
+  {
+    elem->GetAttribute("namespace")->Set(this->Namespace(), _errors);
+  }
   elem->GetAttribute("type")->Set(this->TypeStr(), _errors);
   elem->GetElement("emitting", _errors)->Set(_errors, this->Emitting());
   elem->GetElement("duration", _errors)->Set(_errors, this->Duration());

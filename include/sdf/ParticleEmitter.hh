@@ -82,6 +82,15 @@ namespace sdf
     /// \param[in] _name Name of the particle emitter.
     public: void SetName(const std::string &_name);
 
+    /// \brief Get the namespace associated with the particle emitter.
+    /// \return Namespace of the particle emitter.
+    public: std::string Namespace() const;
+
+    /// \brief Set the namespace associated with the particle emitter.
+    /// \param[in] _ns Namespace of the particle emitter. If set to
+    /// `"__name__"`, the particle emitter name will be used as the namespace.
+    public: void SetNamespace(const std::string &_ns);
+
     /// \brief Get the type of the particle emitter.
     /// The type of the particle emitter should be unique within the scope of
     /// a Link.

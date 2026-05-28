@@ -6,6 +6,10 @@
     <description>A unique name for the particle emitter.</description>
   </attribute>
 
+  <attribute name="namespace" type="string" default="" required="0">
+    <description>Optional namespace associated with the particle emitter. This namespace can be used by downstream systems and applications to organize related entities and communication interfaces. If set to "__name__", the model name will be used as the namespace.</description>
+  </attribute>
+
   <attribute name="type" type="string" default="point" required="1">
     <description>The type of a particle emitter. One of "box", "cylinder", "ellipsoid", or "point".</description>
   </attribute>
