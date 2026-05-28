@@ -39,6 +39,7 @@ TEST(DOMWorld, Construction)
   sdf::World world;
   EXPECT_EQ(nullptr, world.Element());
   EXPECT_TRUE(world.Name().empty());
+  EXPECT_TRUE(world.Namespace().empty());
   EXPECT_EQ(gz::math::Vector3d(0, 0, -9.80665), world.Gravity());
   EXPECT_EQ(gz::math::Vector3d(5.5645e-6, 22.8758e-6, -42.3884e-6),
             world.MagneticField());
@@ -134,6 +135,7 @@ TEST(DOMWorld, CopyConstructor)
 
   world.SetMagneticField({0, 1, 0});
   world.SetName("test_world");
+  world.SetNamespace("test_ns");
 
   world.SetWindLinearVelocity({0, 0, 1});
 
@@ -156,6 +158,7 @@ TEST(DOMWorld, CopyConstructor)
   EXPECT_EQ(gz::math::Vector3d::UnitY, world.MagneticField());
   EXPECT_EQ(gz::math::Vector3d::UnitZ, world.WindLinearVelocity());
   EXPECT_EQ("test_world", world.Name());
+  EXPECT_EQ("test_ns", world.Namespace());
 
   ASSERT_TRUE(nullptr != world2.Atmosphere());
   EXPECT_DOUBLE_EQ(0.1, world2.Atmosphere()->Pressure());
@@ -171,6 +174,7 @@ TEST(DOMWorld, CopyConstructor)
   EXPECT_EQ(gz::math::Vector3d::UnitY, world2.MagneticField());
   EXPECT_EQ(gz::math::Vector3d::UnitZ, world2.WindLinearVelocity());
   EXPECT_EQ("test_world", world2.Name());
+  EXPECT_EQ("test_ns", world2.Namespace());
 }
 
 /////////////////////////////////////////////////
@@ -193,6 +197,7 @@ TEST(DOMWorld, CopyAssignmentOperator)
 
   world.SetMagneticField({0, 1, 0});
   world.SetName("test_world");
+  world.SetNamespace("test_ns");
 
   world.SetWindLinearVelocity({0, 0, 1});
 
@@ -213,6 +218,7 @@ TEST(DOMWorld, CopyAssignmentOperator)
   EXPECT_EQ(gz::math::Vector3d::UnitY, world.MagneticField());
   EXPECT_EQ(gz::math::Vector3d::UnitZ, world.WindLinearVelocity());
   EXPECT_EQ("test_world", world.Name());
+  EXPECT_EQ("test_ns", world.Namespace());
 
   ASSERT_TRUE(nullptr != world2.Atmosphere());
   EXPECT_DOUBLE_EQ(0.1, world2.Atmosphere()->Pressure());
@@ -228,6 +234,7 @@ TEST(DOMWorld, CopyAssignmentOperator)
   EXPECT_EQ(gz::math::Vector3d::UnitY, world2.MagneticField());
   EXPECT_EQ(gz::math::Vector3d::UnitZ, world2.WindLinearVelocity());
   EXPECT_EQ("test_world", world2.Name());
+  EXPECT_EQ("test_ns", world2.Namespace());
 }
 
 /////////////////////////////////////////////////
@@ -250,6 +257,7 @@ TEST(DOMWorld, MoveConstructor)
 
   world.SetMagneticField({0, 1, 0});
   world.SetName("test_world");
+  world.SetNamespace("test_ns");
 
   world.SetWindLinearVelocity({0, 0, 1});
 
@@ -269,6 +277,7 @@ TEST(DOMWorld, MoveConstructor)
   EXPECT_EQ(gz::math::Vector3d::UnitY, world2.MagneticField());
   EXPECT_EQ(gz::math::Vector3d::UnitZ, world2.WindLinearVelocity());
   EXPECT_EQ("test_world", world2.Name());
+  EXPECT_EQ("test_ns", world2.Namespace());
 }
 
 /////////////////////////////////////////////////
@@ -291,6 +300,7 @@ TEST(DOMWorld, MoveAssignmentOperator)
 
   world.SetMagneticField({0, 1, 0});
   world.SetName("test_world");
+  world.SetNamespace("test_ns");
 
   world.SetWindLinearVelocity({0, 0, 1});
 
@@ -311,6 +321,7 @@ TEST(DOMWorld, MoveAssignmentOperator)
   EXPECT_EQ(gz::math::Vector3d::UnitY, world2.MagneticField());
   EXPECT_EQ(gz::math::Vector3d::UnitZ, world2.WindLinearVelocity());
   EXPECT_EQ("test_world", world2.Name());
+  EXPECT_EQ("test_ns", world2.Namespace());
 }
 
 /////////////////////////////////////////////////
@@ -318,9 +329,11 @@ TEST(DOMWorld, CopyAssignmentAfterMove)
 {
   sdf::World world1;
   world1.SetName("world1");
+  world1.SetNamespace("ns1");
 
   sdf::World world2;
   world2.SetName("world2");
+  world2.SetNamespace("ns2");
 
   // This is similar to what std::swap does except it uses std::move for each
   // assignment
@@ -329,7 +342,9 @@ TEST(DOMWorld, CopyAssignmentAfterMove)
   world2 = tmp;
 
   EXPECT_EQ("world2", world1.Name());
+  EXPECT_EQ("ns2", world1.Namespace());
   EXPECT_EQ("world1", world2.Name());
+  EXPECT_EQ("ns1", world2.Namespace());
 }
 
 /////////////////////////////////////////////////
@@ -340,6 +355,16 @@ TEST(DOMWorld, Set)
 
   world.SetName("default");
   EXPECT_EQ("default", world.Name());
+
+  world.SetNamespace("test_ns");
+  EXPECT_EQ("test_ns", world.Namespace());
+
+  world.SetNamespace("__name__");
+  EXPECT_EQ("default", world.Namespace());
+
+  world.SetName("default2");
+  EXPECT_EQ("default2", world.Name());
+  EXPECT_EQ("default2", world.Namespace());
 
   world.SetAudioDevice("/dev/audio");
   EXPECT_EQ("/dev/audio", world.AudioDevice());
@@ -398,6 +423,7 @@ TEST(DOMWorld, AddModel)
 
   sdf::Model model;
   model.SetName("model1");
+  model.SetNamespace("ns1");
   EXPECT_TRUE(world.AddModel(model));
   EXPECT_EQ(1u, world.ModelCount());
   EXPECT_FALSE(world.AddModel(model));
@@ -414,6 +440,7 @@ TEST(DOMWorld, AddModel)
   const sdf::Model *modelFromWorld = world.ModelByIndex(0);
   ASSERT_NE(nullptr, modelFromWorld);
   EXPECT_EQ(modelFromWorld->Name(), model.Name());
+  EXPECT_EQ(modelFromWorld->Namespace(), model.Namespace());
 }
 
 /////////////////////////////////////////////////
@@ -593,6 +620,7 @@ TEST(DOMWorld, ToElement)
   sdf::World world;
 
   world.SetName("my-world");
+  world.SetNamespace("my-ns");
   world.SetAudioDevice("my-audio");
   world.SetWindLinearVelocity(gz::math::Vector3d(1, 2, 3));
   world.SetGravity(gz::math::Vector3d(-1, 5, 10));
@@ -695,6 +723,7 @@ TEST(DOMWorld, ToElement)
   world2.Load(elem);
 
   EXPECT_EQ(world.Name(), world2.Name());
+  EXPECT_EQ(world.Namespace(), world2.Namespace());
   EXPECT_EQ(world.AudioDevice(), world2.AudioDevice());
   EXPECT_EQ(world.WindLinearVelocity(), world2.WindLinearVelocity());
   EXPECT_EQ(world.Gravity(), world2.Gravity());
@@ -768,6 +797,7 @@ TEST(DOMWorld, MutableByIndex)
 
   sdf::Model model;
   model.SetName("model1");
+  model.SetNamespace("ns1");
   EXPECT_TRUE(world.AddModel(model));
 
   sdf::Actor actor;
@@ -794,8 +824,11 @@ TEST(DOMWorld, MutableByIndex)
   sdf::Model *m = world.ModelByIndex(0);
   ASSERT_NE(nullptr, m);
   EXPECT_EQ("model1", m->Name());
+  EXPECT_EQ("ns1", m->Namespace());
   m->SetName("model2");
+  m->SetNamespace("ns2");
   EXPECT_EQ("model2", world.ModelByIndex(0)->Name());
+  EXPECT_EQ("ns2", world.ModelByIndex(0)->Namespace());
 
   // Modify the actor
   sdf::Actor *a = world.ActorByIndex(0);
