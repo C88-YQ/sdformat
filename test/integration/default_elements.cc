@@ -220,7 +220,7 @@ TEST(ExplicitlySetInFile, ToString)
   stream.str(std::string());
   stream
     << "<sdf version='" << version << "'>\n"
-    << "  <world name='default'>\n"
+    << "  <world name='default' namespace=''>\n"
     << "    <road name='empty_road'>\n"
     << "      <width>1</width>\n"
     << "      <point>0 0 0</point>\n"
