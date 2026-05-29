@@ -6,6 +6,15 @@
     <description>A unique name for the model. This name must not match another model in the world.</description>
   </attribute>
 
+  <attribute name="namespace" type="string" default="" required="0">
+    <description>
+      Optional namespace associated with the model. This namespace can be
+      used by downstream systems and applications to organize related entities
+      and communication interfaces. If set to "__name__", the model name will
+      be used as the namespace.
+    </description>
+  </attribute>
+
   <element name="static" type="bool" default="false" required="0">
     <description>
       If set to true, the model is immovable; i.e., a dynamics engine will not
@@ -43,6 +52,10 @@
 
     <element name="name" type="string" default="" required="0">
       <description>Override the name of the included model.</description>
+    </element>
+
+    <element name="namespace" type="string" default="" required="0">
+      <description>Override the namespace of the included entity.</description>
     </element>
 
     <element name="static" type="bool" default="false" required="0">

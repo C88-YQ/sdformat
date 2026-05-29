@@ -5,6 +5,15 @@
     <description>Unique name of the world</description>
   </attribute>
 
+  <attribute name="namespace" type="string" default="" required="0">
+    <description>
+      Optional namespace associated with the world. This namespace can be
+      used by downstream systems and applications to organize related entities
+      and communication interfaces.If set to "__name__", the model name will
+      be used as the namespace.
+    </description>
+  </attribute>
+
   <element name="audio" required="0">
     <description>Global audio properties.</description>
 
@@ -29,6 +38,10 @@
 
     <element name="name" type="string" default="" required="0">
       <description>Override the name of the included entity.</description>
+    </element>
+
+    <element name="namespace" type="string" default="" required="0">
+      <description>Override the namespace of the included entity.</description>
     </element>
 
     <element name="static" type="bool" default="false" required="0">

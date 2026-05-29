@@ -4,6 +4,9 @@
   <attribute name="name" type="string" default="__default__" required="1">
     <description>A name for the plugin.</description>
   </attribute>
+  <attribute name="namespace" type="string" default="" required="0">
+    <description>Optional namespace associated with the plugin. This namespace can be used by downstream systems and applications to organize related entities and communication interfaces. If set to "__name__", the model name will be used as the namespace.</description>
+  </attribute>
   <attribute name="filename" type="string" default="__default__" required="1">
     <description>Name of the shared library to load. If the filename is not a full path name, the file will be searched for in the configuration paths.</description>
   </attribute>
